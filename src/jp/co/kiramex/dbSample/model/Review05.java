@@ -1,17 +1,21 @@
 package jp.co.kiramex.dbSample.model;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
+//import java.sql.Statement;
 
 public class Review05 {
 
     public static void main(String[] args) {
         // 3. データベース接続と結果取得のための変数宣言
         Connection con = null;
-        Statement stmt = null;
+        PreparedStatement pstmt = null;
         ResultSet rs = null;
 
         try {
@@ -24,32 +28,25 @@ public class Review05 {
                     "root",
                     "BUZZbuzz0123"
                 );
-
-            // 4. DBとやりとりする窓口（Statementオブジェクト）の作成
-            stmt = con.createStatement();
+            // 4. DBとやりとりする窓口（PreStatementオブジェクト）の作成
+            String sql = "SELECT * FROM person WHERE id = ? ";
+            pstmt = con.prepareStatement(sql);
 
             // 5, 6. Select文の実行と結果を格納／代入
-            String sql = "SELECT * FROM person";
-            rs = stmt.executeQuery(sql);
-
+            System.out.print("検索キーワードを入力してください > ");
+            String input = keyIn();
+            
+            pstmt.setString(1,input);
+            rs = pstmt.executeQuery();
+            
             // 7. 結果を表示する
-            System.out.print("whileの前");
             
             while(rs.next()) {
-                
-                
-                    System.out.print("whileが実行された");
-                
                 String name = rs.getString("name");
                 int age = rs.getInt("age");
-                
                 System.out.println(name);
                 System.out.println(age);
-
             }
-            
-            System.out.print("whileの後");
-            
             // 8. 接続を閉じる
         } catch (ClassNotFoundException e) {
             System.err.println("JDBCドライバのロードに失敗しました。");
@@ -66,11 +63,11 @@ public class Review05 {
                     e.printStackTrace();
                 }
             }
-            if( stmt != null ){
+            if( pstmt != null ){
                 try {
-                    stmt.close();
+                    pstmt.close();
                 } catch (SQLException e) {
-                    System.err.println("Statementを閉じるときにエラーが発生しました。");
+                    System.err.println("PrepareStatementを閉じるときにエラーが発生しました。");
                     e.printStackTrace();
                 }
             }
@@ -85,6 +82,19 @@ public class Review05 {
         }
 
     }
+    
+     //キーボードから入力された値をStringで返す 引数：なし 戻り値：入力された文字列
+    private static String keyIn() {
+        String line = null;
+        try {
+            BufferedReader key = new BufferedReader(new InputStreamReader(System.in));
+            line = key.readLine();
+        } catch (IOException e) {
+        }
+        return line;
+       
     }
+
+}
 
 
